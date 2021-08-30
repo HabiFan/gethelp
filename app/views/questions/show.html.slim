@@ -1,2 +1,7 @@
 h1 = @question.title
 p = @question.body
+p= 'Answers:'
+ul 
+  = render @question.answers
+- if user_signed_in?  
+  p= render 'form_inline'

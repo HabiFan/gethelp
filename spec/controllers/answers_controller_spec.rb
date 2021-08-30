@@ -2,11 +2,13 @@ require 'rails_helper'
 
 RSpec.describe AnswersController, type: :controller do
   
-  let(:question) { create(:question) }
+  let(:user) { create(:user) }
+  let(:question) { create(:question) }  
   let(:answer) { create(:answer) }
- 
+  before { login(user) }
+
   describe 'GET #new' do
-   
+    
     before { get :new, params: { question_id: question } }
 
     it 'assigns a new answer to @answer' do
@@ -19,6 +21,7 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe 'GET #edit' do
+    
     before { get :edit, params: { id: answer } }
 
     it 'assigns the requested answer to @answer' do
@@ -31,7 +34,7 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
-    let!(:answer) { create(:answer) }
+    let!(:answer) { create(:answer, author: user) }
 
     it 'deletes the question' do
       expect { delete :destroy, params: { id: answer } }.to change(Answer, :count).by(-1)
@@ -46,24 +49,24 @@ RSpec.describe AnswersController, type: :controller do
   describe 'POST #create' do
     context 'with valid attributes' do
       it 'saves a new answer in the database' do
-        expect { post :create, params: { question_id: question, answer: attributes_for(:question) } }.to change(question.answers, :count).by(1)
+        expect { post :create, params: { question_id: question, answer: attributes_for(:question).merge(author_id: user) } }.to change(question.answers, :count).by(1)
       end
 
       it 'redirects to show view' do
-        post :create, params: { question_id: question, answer: attributes_for(:question) }
-        expect(response).to redirect_to assigns(:question)
+        post :create, params: { question_id: question, answer: attributes_for(:question).merge(author_id: user) }
+        expect(response).to redirect_to question_path(question)
       end
     end
 
     context 'with invalid attributes' do
-      it 'does not save the amswer' do
-        expect { post :create, params: { question_id: question, answer: attributes_for(:answer, :invalid) } }.to_not change(Answer, :count)
+      it 'does not save the answer' do
+        expect { post :create, params: { question_id: question, answer: attributes_for(:answer, :invalid) } }.to_not change(question.answers, :count)
       end
 
 
       it 're-renders new view' do
         post :create, params: { question_id: question, answer: attributes_for(:answer, :invalid) }
-        expect(response).to render_template :new
+        expect(response).to redirect_to question_path(question)
       end
     end
   end
@@ -94,7 +97,7 @@ RSpec.describe AnswersController, type: :controller do
       it 'does not change answer' do
         answer.reload
 
-        expect(answer.body).to eq 'MyText'
+        expect(answer.body).to eq 'Text10'
       end
 
       it 're-renders edit view' do
@@ -102,5 +105,5 @@ RSpec.describe AnswersController, type: :controller do
       end
     end
   end
-
 end
+

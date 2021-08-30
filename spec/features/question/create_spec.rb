@@ -20,7 +20,7 @@ feature 'User can create question', %q{
       fill_in 'Title', with: 'Test question'
       fill_in 'Body', with: 'text text text'
       click_on 'Ask'
-
+      
       expect(page).to have_content 'Your question successfully created.'
       expect(page).to have_content 'Test question'
       expect(page).to have_content 'text text text'
@@ -39,5 +39,4 @@ feature 'User can create question', %q{
 
     expect(page).to have_content 'You need to sign in or sign up before continuing.'
   end
-
 end

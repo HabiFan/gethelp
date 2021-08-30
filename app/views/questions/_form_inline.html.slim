@@ -1,0 +1,5 @@
+= form_for [@question, @question.answers.new(author_id: @author.id)], local: true, remote: true do |f|
+  = render 'shared/errors', resource: @question
+  = f.label :body
+  = f.text_field :body, requere: true
+  = f.submit 
