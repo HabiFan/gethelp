@@ -1,23 +1,22 @@
 class AnswersController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
   before_action :find_question, only: [:new, :create]
-  before_action :set_author, only: [:new, :create]
   before_action :set_answer, only: [:edit, :update, :destroy]
 
   def new
-    @answer = @question.answers.new
+    @answer = @question.answers.new(author_id: current_user.id)
   end
 
   def edit
   end
 
   def create
-    @answer = @question.answers.new(answer_params.merge(author_id: @author.id))
+    @answer = @question.answers.new(answer_params.merge(author_id: current_user.id))
 
     if @answer.save
       redirect_to @question, notice: 'Your answer successfully created.'
     else
-      redirect_to @answer.question, notice: 'Your answer is not valid'
+      render :new
     end
   end
 
@@ -30,7 +29,7 @@ class AnswersController < ApplicationController
   end
 
   def destroy
-    if @answer.author == current_user && @answer.destroy
+    if @answer.author.author_of? && @answer.destroy
       redirect_to @answer.question, notice: 'Your answer successfully delete!'
     else
       redirect_to @answer.question, notice: 'The answer cannot be deleted!'
@@ -47,11 +46,7 @@ class AnswersController < ApplicationController
     @answer = Answer.find(params[:id])
   end
 
-  def set_author
-    @author ||= current_user
-  end
-
   def answer_params
-    params.require(:answer).permit(:body, :author_id)
+    params.require(:answer).permit(:body)
   end
 end

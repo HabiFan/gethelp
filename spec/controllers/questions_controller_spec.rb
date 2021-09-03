@@ -131,10 +131,21 @@ RSpec.describe QuestionsController, type: :controller do
   describe 'DELETE #destroy' do
     before { login(user) }
     
-    let!(:question) { create(:question, author: user) }
+    context 'the author is the user' do 
+      let!(:question) { create(:question, author: user) }
 
-    it 'deletes the question' do
-      expect { delete :destroy, params: { id: question } }.to change(Question, :count).by(-1)
+      it 'deletes the question' do
+        expect { delete :destroy, params: { id: question } }.to change(Question, :count).by(-1)
+      end
+    end
+
+    context 'non-user author' do
+      let!(:other_user) { create(:user) }
+      let!(:question) { create(:question, author: other_user) }
+
+      it 'does not delete the question' do
+        expect { delete :destroy, params: { id: question } }.to change(Question, :count).by(0)
+      end
     end
 
     it 'redirects to index' do

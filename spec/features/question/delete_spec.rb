@@ -8,45 +8,42 @@ feature 'The user wants to delete their questions or answers', %q{
 } do
   given!(:user) { create(:user) }
   given(:other_user) { create(:user) }
-  
-  background { sign_in(user) }
+  given!(:question) {  create(:question, author: user) }
 
-  describe 'User can delete' do
-  
-    given!(:question) {  create(:question, author: user) }
-    given!(:answer) { create(:answer, author: user, question: question) }
+  describe 'Authenticated user' do
+    background { sign_in(user) }   
 
-    scenario 'their question' do
-      visit questions_path      
-      click_on "Delete #{question.title}"
-      
-      expect(page).to have_content 'Your question successfully delete!'
-    end
+    describe "can delete" do
+      scenario 'their ouestion' do
+        visit questions_path
+        
+        expect(page).to have_link "Delete #{question.title}" 
+        expect(page).to have_link "#{question.title}"
+        
+        click_on "Delete #{question.title}" 
+         
+        expect(page).to have_content 'Your question successfully delete!'
+        expect(page).not_to have_link "#{question.title}"
+        expect(page).not_to have_link "Delete #{question.title}" 
+      end
+  end
+
+    describe "cannot delete" do   
+      given!(:question) {  create(:question, author: other_user) }
+
+      scenario "other people's question" do
+        visit questions_path
     
-    scenario 'their answer' do
-      visit question_path(question)
-      click_on "Delete answer"
-      
-      expect(page).to have_content 'Your answer successfully delete!'
+        expect(page).not_to have_link "Delete #{question.title}"            
+      end
     end
   end
 
-  describe "User cannot delete" do    
-    given!(:question) {  create(:question, author: other_user) }
-    given!(:answers) { create(:answer, question: question, author: other_user) }
-      
-    scenario "other people's question" do
-      visit questions_path      
-      click_on "Delete #{question.title}"
-      
-      expect(page).to have_content 'The question cannot be deleted!'
-    end
+  describe 'Unauthenticated user' do
+    scenario 'trying to delete the question' do
+      visit questions_path
 
-    scenario "other people's answer" do
-      visit question_path(question)
-      click_on "Delete answer"
-      
-      expect(page).to have_content 'The answer cannot be deleted!'
+      expect(page).not_to have_link "Delete #{question.title}"
     end
-  end
+  end  
 end

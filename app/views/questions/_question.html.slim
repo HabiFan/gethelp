@@ -1,7 +1,8 @@
 li 
   = link_to question.title, question_path(question)
-  | | 
-  = link_to "Delete #{question.title}", question_path(question), method: :delete
+  - if question.author.author_of?
+    | | 
+    = link_to "Delete #{question.title}", question_path(question), method: :delete
                 
 
 

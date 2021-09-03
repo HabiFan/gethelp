@@ -33,13 +33,24 @@ RSpec.describe AnswersController, type: :controller do
     end
   end
 
-  describe 'DELETE #destroy' do
-    let!(:answer) { create(:answer, author: user) }
+  describe 'DELETE #destroy' do    
+    context 'the author is the user' do
+      let!(:answer) { create(:answer, author: user) }
 
-    it 'deletes the question' do
-      expect { delete :destroy, params: { id: answer } }.to change(Answer, :count).by(-1)
+      it 'deletes the answer' do
+        expect { delete :destroy, params: { id: answer } }.to change(Answer, :count).by(-1)
+      end
     end
 
+    context 'non-user author' do
+      let!(:other_user) { create(:user) }
+      let!(:answer) { create(:answer, author: other_user) }
+
+      it 'does not delete the answer' do
+        expect { delete :destroy, params: { id: answer } }.to change(Answer, :count).by(0)
+      end
+    end
+    
     it 'redirects to question' do
       delete :destroy,  params: { id: answer }
       expect(response).to redirect_to answer.question
@@ -66,7 +77,7 @@ RSpec.describe AnswersController, type: :controller do
 
       it 're-renders new view' do
         post :create, params: { question_id: question, answer: attributes_for(:answer, :invalid) }
-        expect(response).to redirect_to question_path(question)
+        expect(response).to render_template :new
       end
     end
   end
@@ -97,7 +108,7 @@ RSpec.describe AnswersController, type: :controller do
       it 'does not change answer' do
         answer.reload
 
-        expect(answer.body).to eq 'Text10'
+        expect(answer.body).to eq 'Text11'
       end
 
       it 're-renders edit view' do
