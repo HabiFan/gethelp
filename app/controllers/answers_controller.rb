@@ -4,9 +4,9 @@ class AnswersController < ApplicationController
   before_action :set_answer, only: [:edit, :update, :destroy]
 
   def new
-    @answer = @question.answers.new(author_id: current_user.id)
+    @answer = @question.answers.new
   end
-
+  
   def edit
   end
 
@@ -16,7 +16,7 @@ class AnswersController < ApplicationController
     if @answer.save
       redirect_to @question, notice: 'Your answer successfully created.'
     else
-      render :new
+      render 'questions/show'
     end
   end
 
@@ -29,7 +29,7 @@ class AnswersController < ApplicationController
   end
 
   def destroy
-    if @answer.author.author_of? && @answer.destroy
+    if current_user.author_of?(@answer.author) && @answer.destroy
       redirect_to @answer.question, notice: 'Your answer successfully delete!'
     else
       redirect_to @answer.question, notice: 'The answer cannot be deleted!'

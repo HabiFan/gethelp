@@ -1,6 +1,6 @@
 li 
   = link_to question.title, question_path(question)
-  - if question.author.author_of?
+  - if user_signed_in? && current_user.author_of?(question.author)
     | | 
     = link_to "Delete #{question.title}", question_path(question), method: :delete
                 

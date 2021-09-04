@@ -40,7 +40,7 @@ feature 'User can write an answer to a question', %q{
     scenario 'answer to the question with errors' do
       
       click_on 'Create Answer'
-
+    
       expect(page).to have_content "Body can't be blank"
       
     end

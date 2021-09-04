@@ -4,4 +4,4 @@ p= 'Answers:'
 ul 
   = render @question.answers      
 - if user_signed_in?  
-  p= render 'questions/form_inline', answer: @question.answers.new
+  p= render 'questions/form_inline'
