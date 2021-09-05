@@ -29,7 +29,7 @@ class AnswersController < ApplicationController
   end
 
   def destroy
-    if current_user.author_of?(@answer.author) && @answer.destroy
+    if current_user.author_of?(@answer) && @answer.destroy
       redirect_to @answer.question, notice: 'Your answer successfully delete!'
     else
       redirect_to @answer.question, notice: 'The answer cannot be deleted!'

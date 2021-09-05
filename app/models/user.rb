@@ -8,8 +8,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  def author_of?(author)
-   author.present? && self.id == author.id
+  def author_of?(resource)
+    resource.author.present? && self.id == resource.author.id
   end
 
 end

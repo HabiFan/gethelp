@@ -6,17 +6,7 @@ feature 'User can write an answer to a question', %q{
 } do
   
   given!(:user) { create(:user) }
-  given!(:other_user) { create(:user) }
-  given!(:question) { create(:question, author: user) }
-  given!(:answers) do 
-    create(:answer, author: other_user, question: question) 
-    create(:answer, author: user, question: question) 
-    create(:answer, author: other_user, question: question) 
-    create(:answer, author: user, question: question) 
-    create(:answer, author: other_user, question: question) 
-    create(:answer, author: other_user, question: question) 
-    create(:answer, author: user, question: question) 
-  end
+  given!(:question) { create(:question, author: user) } 
 
   describe 'Authenticated user' do 
     background do

@@ -144,7 +144,7 @@ RSpec.describe QuestionsController, type: :controller do
       let!(:question) { create(:question, author: other_user) }
 
       it 'does not delete the question' do
-        expect { delete :destroy, params: { id: question } }.to change(Question, :count).by(0)
+        expect { delete :destroy, params: { id: question } }.not_to change(Question, :count)
       end
     end
 
