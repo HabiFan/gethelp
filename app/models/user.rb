@@ -9,7 +9,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   def author_of?(resource)
-    resource.author.present? && self.id == resource.author.id
+    self.id == resource.author_id
   end
 
 end
