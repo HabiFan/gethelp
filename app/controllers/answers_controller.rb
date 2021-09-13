@@ -11,21 +11,12 @@ class AnswersController < ApplicationController
   end
 
   def create
-    @answer = @question.answers.new(answer_params.merge(author_id: current_user.id))
-
-    if @answer.save
-      redirect_to @question, notice: 'Your answer successfully created.'
-    else
-      render 'questions/show'
-    end
+    @answer = @question.answers.create(answer_params.merge(author_id: current_user.id))
   end
-
+  
   def update
-    if @answer.update(answer_params)
-      redirect_to @answer.question
-    else
-      render :edit
-    end
+    @answer.update(answer_params)
+    @question = @answer.question
   end
 
   def destroy

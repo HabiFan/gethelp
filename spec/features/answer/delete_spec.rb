@@ -18,7 +18,7 @@ feature 'The user wants to delete answers', %q{
         visit question_path(question)
         
         expect(page).to have_link "Delete answer" 
-        expect(page).to have_content "#{answer.body}|"
+        expect(page).to have_content "#{answer.body}"
         
         click_on "Delete answer"
          
