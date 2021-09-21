@@ -1,4 +1,4 @@
-.answer-errors
+.new-answer-errors
   = render 'shared/errors', resource: @answer
 = form_with model: [@question, Answer.new], local: false, class: 'new-answer' do |f|
   = f.label :body

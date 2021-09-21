@@ -1,0 +1,5 @@
+-if @best_answer.present?
+  = content_tag :div, class: "answer-#{@best_answer.id}"     
+    li
+      = @best_answer.body
+      = render 'answers/control', answer: @best_answer

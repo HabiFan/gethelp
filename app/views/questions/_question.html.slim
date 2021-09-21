@@ -1,8 +1,19 @@
-li 
-  = link_to question.title, question_path(question)
-  - if current_user&.author_of?(question)
-    | | 
-    = link_to "Delete #{question.title}", question_path(question), method: :delete
-                
+-if question.persisted?
+  = content_tag :div, class: "question-#{question.id}"  
+    li
+      = link_to question.title, question_path(question)
+      - if current_user&.author_of?(question)
+        p
+          = link_to 'Edit', '#', class: 'edit-question-link', data: { question_id: question.id }, local: true    
+          |  
+          = link_to "Delete #{question.title}", question_path(question), method: :delete, remote: true, class: 'delete-question'
+    .question-errors
+      = render 'shared/errors', resource: question
+    = form_with model: question, local: false, class: 'hidden', html: { id: "edit-question-#{question.id}" } do |f|
+      = f.label :title
+      = f.text_field :title 
+      = f.label :body
+      = f.text_area :body 
+      = f.submit 'Save'             
 
 

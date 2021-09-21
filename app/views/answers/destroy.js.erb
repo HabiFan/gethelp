@@ -1,0 +1,3 @@
+$('.delete-answer').bind('ajax:success', function(e) {
+  $(this).closest('.answer-<%= @answer.id %>').fadeOut().remove();
+})

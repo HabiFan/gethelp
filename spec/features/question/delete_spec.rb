@@ -14,7 +14,7 @@ feature 'The user wants to delete their questions or answers', %q{
     background { sign_in(user) }   
 
     describe "can delete" do
-      scenario 'their ouestion' do
+      scenario 'their ouestion', js: true do
         visit questions_path
         
         expect(page).to have_link "Delete #{question.title}" 
@@ -22,7 +22,6 @@ feature 'The user wants to delete their questions or answers', %q{
         
         click_on "Delete #{question.title}" 
          
-        expect(page).to have_content 'Your question successfully delete!'
         expect(page).not_to have_link "#{question.title}"
         expect(page).not_to have_link "Delete #{question.title}" 
       end
