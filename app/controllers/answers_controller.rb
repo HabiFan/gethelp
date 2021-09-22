@@ -11,28 +11,18 @@ class AnswersController < ApplicationController
   end
 
   def create
-    @answer = @question.answers.new(answer_params.merge(author_id: current_user.id))
-
-    if @answer.save
-      redirect_to @question, notice: 'Your answer successfully created.'
-    else
-      render 'questions/show'
-    end
+    @answer = @question.answers.create(answer_params.merge(author_id: current_user.id))
   end
-
+  
   def update
-    if @answer.update(answer_params)
-      redirect_to @answer.question
-    else
-      render :edit
+    if current_user.author_of?(@answer)
+      @answer.update(answer_params)
     end
   end
 
   def destroy
-    if current_user.author_of?(@answer) && @answer.destroy
-      redirect_to @answer.question, notice: 'Your answer successfully delete!'
-    else
-      redirect_to @answer.question, notice: 'The answer cannot be deleted!'
+    if current_user.author_of?(@answer)
+      @answer.destroy     
     end
   end
 

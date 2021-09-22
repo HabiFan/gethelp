@@ -1,6 +1,6 @@
 class QuestionsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
-   before_action :load_question, only: [:show, :edit, :update, :destroy]
+   before_action :load_question, only: [:show, :edit, :update, :destroy, :best_answer]
 
   def index
     @questions = Question.all
@@ -8,6 +8,8 @@ class QuestionsController < ApplicationController
 
   def show
     @answer = @question.answers.new
+    @best_answer = @question.best_answer
+		@answers = @question.answers.where.not(id: @question.best_answer_id)
   end
 
   def new
@@ -28,18 +30,23 @@ class QuestionsController < ApplicationController
   end
 
   def update
-    if @question.update(question_params)
-      redirect_to @question
-    else
-      render :edit
+    if current_user.author_of?(@question) 
+      @question.update(question_params)      
+    end
+  end
+
+  def best_answer
+    @answer = Answer.find(params[:answer_id])
+    if current_user.author_of?(@question)
+       @question.mark_as_best(@answer)
+       @best_answer = @question.best_answer
+		   @answers = @question.answers.where.not(id: @question.best_answer_id)
     end
   end
 
   def destroy
-    if current_user.author_of?(@question) && @question.destroy
-      redirect_to questions_path, notice: 'Your question successfully delete!'
-    else
-      redirect_to questions_path, notice: 'The question cannot be deleted!'
+    if current_user.author_of?(@question)
+      @question.destroy
     end
   end
 

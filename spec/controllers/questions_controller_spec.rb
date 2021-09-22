@@ -92,38 +92,56 @@ RSpec.describe QuestionsController, type: :controller do
   describe 'PATCH #update' do
     before { login(user) }
 
-    context 'with valid attributes' do
-      it 'assigns the requested question to @question' do
-        patch :update, params: { id: question, question: attributes_for(:question) }
-        expect(assigns(:question)).to eq question
+    context 'edits his answer question' do
+      let(:question) { create(:question, author: user) }
+
+      context 'with valid attributes' do
+        it 'assigns the requested question to @question' do
+          patch :update, params: { id: question, question: attributes_for(:question) }, format: :js
+          expect(assigns(:question)).to eq question
+        end
+
+        it 'changes question attributes' do
+          patch :update, params: { id: question, question: { title: 'new title', body: 'new body' }, format: :js }
+          question.reload
+
+          expect(question.title).to eq 'new title'
+          expect(question.body).to eq 'new body'
+        end
+
+        it 'redirects to updated question' do
+          patch :update, params: { id: question, question: attributes_for(:question) }, format: :js
+          expect(response).to redirect_to question
+        end
       end
 
-      it 'changes question attributes' do
-        patch :update, params: { id: question, question: { title: 'new title', body: 'new body' } }
-        question.reload
+      context 'with invalid attributes' do
+        before { patch :update, params: { id: question, question: attributes_for(:question, :invalid) }, format: :js }
 
-        expect(question.title).to eq 'new title'
-        expect(question.body).to eq 'new body'
-      end
+        it 'does not change question' do
+          question.reload
 
-      it 'redirects to updated question' do
-        patch :update, params: { id: question, question: attributes_for(:question) }
-        expect(response).to redirect_to question
-      end
+          expect(question.title).to eq question.title
+          expect(question.body).to eq question.body
+        end
+
+        it 're-renders edit view' do
+          expect(response).to render_template :update
+        end
+      end      
     end
 
-    context 'with invalid attributes' do
-      before { patch :update, params: { id: question, question: attributes_for(:question, :invalid) } }
+    context "tries to edit other user's question" do
+      let!(:other_user) { create(:user) }
+      let!(:question) { create(:question, author: other_user) }
 
-      it 'does not change question' do
+      before { patch :update, params: { id: question, question: { title: 'new title', body: 'new body' } }, format: :js }
+
+      it "does not change other user's question" do
         question.reload
 
-        expect(question.title).to eq question.title
-        expect(question.body).to eq question.body
-      end
-
-      it 're-renders edit view' do
-        expect(response).to render_template :edit
+        expect(question.title).not_to eq 'new title'
+        expect(question.body).not_to eq 'new body'
       end
     end
   end
@@ -135,7 +153,7 @@ RSpec.describe QuestionsController, type: :controller do
       let!(:question) { create(:question, author: user) }
 
       it 'deletes the question' do
-        expect { delete :destroy, params: { id: question } }.to change(Question, :count).by(-1)
+        expect { delete :destroy, params: { id: question }, format: :js  }.to change(Question, :count).by(-1)
       end
     end
 
@@ -144,14 +162,49 @@ RSpec.describe QuestionsController, type: :controller do
       let!(:question) { create(:question, author: other_user) }
 
       it 'does not delete the question' do
-        expect { delete :destroy, params: { id: question } }.not_to change(Question, :count)
+        expect { delete :destroy, params: { id: question }, format: :js  }.not_to change(Question, :count)
       end
     end
 
     it 'redirects to index' do
-      delete :destroy, params: { id: question }
-      expect(response).to redirect_to questions_path
+      delete :destroy, params: { id: question }, format: :js 
+      expect(response).to render_template :destroy
     end
+  end
+
+  describe 'BEST_ANSWER #best_answer' do
+    before { login(user) }
+    
+    context 'the author is the question' do 
+      let!(:question) { create(:question, author: user) }
+      let!(:answer) { create(:answer, question: question) }
+
+      before { patch :best_answer, params: { id: question, answer_id: answer.id }, format: :js }
+
+      it 'can choose best answer the question' do
+        expect(question.reload.best_answer_id).to eq answer.id
+        expect(response).to render_template :best_answer
+      end
+    end
+
+    context 'non-user author the question' do
+      let!(:other_user) { create(:user) }
+      let!(:question) { create(:question, author: other_user) }
+      let!(:answer) { create(:answer, question: question) }
+      
+      before { patch :best_answer, params: { id: question, answer_id: answer.id }, format: :js }
+      
+      it 'does not choose best answer the question' do
+        expect(question.reload.best_answer_id).to_not eq answer.id
+      end
+
+      it 're-renders best_answer' do
+        expect(response).to render_template :best_answer
+      end
+    end
+
+
+
   end
 end
 

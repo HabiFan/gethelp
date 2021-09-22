@@ -1,7 +1,12 @@
 h1 = @question.title
 p = @question.body
+
 p= 'Answers:'
 ul 
-  = render @question.answers      
+  .answers  
+    .best-answer
+      = render partial: 'answers/best_answer', resource: @best_answer
+    .usual-answers
+      = render partial: 'answers/answer', collection: @answers
 - if user_signed_in?  
   p= render 'questions/form_inline'
